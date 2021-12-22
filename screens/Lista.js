@@ -1,105 +1,121 @@
 import React, { useState, useEffect } from 'react'
-import { Image, View, Text, TouchableOpacity, FlatList, ActivityIndicator, StyleSheet } from 'react-native'
-import CupertinoButtonDanger from "../component/CupertinoButtonDanger2";
+import { ActivityIndicator, Button, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-export default function Lista({ navigation }) {
+export default function Lista() {
+  const navigation = useNavigation();
+  
+  const [isLoading, setLoading] = useState(true);
+  const [DATA, setData] = useState([]);
 
-    const cont = 0;
-    const imagens = [
-        {img: require('../assets/img/bmw-x3-suv-white-US-2021.png')},
-        {img: require('../assets/img/nissan-versa-4d-white-2021.png')},
-        {img: require('../assets/img/vw-jetta-4d-silber-2019.png')}
-    ];
-    const [isLoading, setLoading] = useState(true);
-    const [DATA, setData] = useState([])
-    const getElements = async () => {
-        try {
-            const response = await fetch('https://raw.githubusercontent.com/Budy-Dev/teste/main/cars.json');
-            const json = await response.json();
-            setData(json.cars);
+  const getElements = async () => {
+    try {
+        const response = await fetch('https://raw.githubusercontent.com/Budy-Dev/teste/main/cars.json');
+        const json = await response.json();
+        setData(json.cars);
 
-        } catch (error) {
-            console.log(error)
-        } finally {
-            setLoading(false);
-        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        setLoading(false);
     }
+  }
 
-    useEffect(() => {
-        getElements();
-    }, []);
+  useEffect(() => {
+    getElements();
+  }, []);
 
-    return (
-        <View style={{backgroundColor: 'white'}}>
-            <View style={styles.header}>
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}></View>
+      <ScrollView style={styles.body}>
+        <View style={{borderBottom: '1px solid rgb(255, 125, 25)', width: '80%', alignSelf: 'center'}}>
+          <Text style={{textAlign: 'center'}}>RECOMMENDATION</Text>
+        </View>
 
-            </View>
-            {isLoading ? <ActivityIndicator /> : (
-                <FlatList
-                    data={DATA}
-                    renderItem={({ item }) => (
-
-                        <TouchableOpacity
-                            style={styles.itens}
-                            onPress={() => {
-                                navigation.navigate('Detalhes',
-                                    { marcaCarro: item.marca})
-                            }}>
-                            <Image
-                                source={require('../assets/img/' + item.img)}
-                                style={styles.imagens}
-                            />
-                            <Text>Pickup Location</Text>
-                            <Text></Text>
-                            <Text>{item.marca} {item.modelo}</Text>
-                            <Text>
-                            <Text>{item.preco}€ por dia</Text>
-                            <Text>{"\n"}Preço total: {item.preco}€</Text>
-                            </Text>
-                            <CupertinoButtonDanger
-                                style={styles.cupertinoButtonDanger}
-                                onPress = {() => {navigation.navigate('Detalhes');}}
-                            ></CupertinoButtonDanger>
-                            
-                        </TouchableOpacity>
-                        
-                    )}
-                />
+        {isLoading ? <ActivityIndicator /> : (
+          <FlatList
+            data={DATA}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.itens}>
+                <View style={{borderBottom: '1px solid #888', padding: 2}}>
+                  <View style={styles.caixa}>
+                    <Image
+                      source={require('../assets/img/' + item.img)}
+                      style={styles.image}
+                    />
+                    <Text style={{marginLeft: '10%', fontSize: 20}}>{item.marca} {item.modelo}</Text>
+                  </View>
+                  <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginTop: 15}}>
+                    <View>
+                      <Text style={{fontSize: 20, fontWeight: 'bold'}}>€ {item.preco} <Text style={{fontSize: 8}}>per day</Text></Text>
+                      <Text style={{color: '#888', fontSize: 16}}>Total: € {item.preco}</Text>
+                    </View>
+                    <View>
+                      <Button
+                        color="rgb(255, 125, 25)"
+                        title="PAY NOW"
+                        onPress={() => navigation.navigate('Detalhes', {...item})}
+                      />
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
             )}
-            <View style={styles.rect1}>
-        <Text style={styles.text}>
-          Contact Imprint Privacy Policy Franchise CSR
+          />
+        )}
+      </ScrollView>
+      <View style={styles.footer}>
+        <Text style={{color: '#fff'}}>
+          <Text style={styles.footerItems}>Contact</Text>
+          <Text style={styles.footerItems}>Imprint</Text>
+          <Text style={styles.footerItems}>Privacy Policy</Text>
+          <Text style={styles.footerItems}>Franchise</Text>
+          <Text style={styles.footerItems}>CSR</Text>
         </Text>
       </View>
-        </View>
-    );
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    itens: {
-        flex: 1,
-        padding: 10
-    },
-    imagens: {
-        width: '100%',
-        height: 200
-    },
-    header:{
-        marginTop: 0,
-        width: '100%',
-        height: 50,
-        backgroundColor: 'black'
-    },
-    rect1: {
-      width: '100%',
-      height: 88,
-      backgroundColor: "rgba(0,0,0,1)",
-      marginTop: 0
-    },
-    text: {
-      fontFamily: "roboto-regular",
-      color: "rgba(239,231,231,1)",
-      marginTop: 35,
-      marginLeft: 36
-    },
-})
+  itens: {
+    flex: 1,
+    padding: 10
+  },
+  container: {
+    flex: 1
+  },
+  header: {
+    flex: 2,
+    backgroundColor: 'black',
+    maxHeight: '30%',
+  },
+  body: {
+    flex: 20,
+    minHeight: 500,
+    backgroundColor: 'white',
+    padding: 20
+  },
+  footer: {
+    flex: 1,
+    backgroundColor: 'black',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    textAlign: 'center',
+    maxHeight: '20%',
+  },
+  fieldLabel: {
+    padding: 3
+  },
+  footerItems: {
+    padding: 6
+  },
+  image: {
+    width: 350,
+    height: 200,
+    alignSelf: 'center'
+  }
+});
